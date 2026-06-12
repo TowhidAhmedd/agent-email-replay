@@ -1,0 +1,61 @@
+version: "3.9"
+
+services:
+  # ─── FastAPI Backend ───────────────────────────────────────────────────────
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: email_agent_api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    volumes:
+      - agent_data:/app/data
+      - agent_logs:/app/logs
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    command: >
+      uvicorn app.main:app
+      --host 0.0.0.0
+      --port 8000
+      --workers 1
+      --log-level info
+
+  # ─── Streamlit Frontend ────────────────────────────────────────────────────
+  streamlit:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: email_agent_ui
+    restart: unless-stopped
+    ports:
+      - "8501:8501"
+    env_file:
+      - .env
+    environment:
+      - STREAMLIT_API_BASE_URL=http://api:8000
+    depends_on:
+      api:
+        condition: service_healthy
+    volumes:
+      - agent_data:/app/data
+    command: >
+      streamlit run frontend/streamlit_app.py
+      --server.port 8501
+      --server.address 0.0.0.0
+      --server.headless true
+      --browser.gatherUsageStats false
+
+volumes:
+  agent_data:
+    driver: local
+  agent_logs:
+    driver: local
