@@ -1,0 +1,13 @@
+
+
+Here's the bullet version:
+Human-in-the-Loop AI Email Reply Agent | LangGraph · FastAPI · Groq (LLaMA 3.3-70B) · Gmail API · ChromaDB · Streamlit · Docker
+
+Architected a 7-node LangGraph stateful pipeline (fetch → classify → context retrieval → draft → safety review → human approval → send) with a hard interrupt/resume mechanism that enforces zero auto-sends — no email leaves without explicit human approval
+Engineered multi-layer HITL safety across three independent enforcement points (routing edge, node-level gate, API validation) so no single failure mode can bypass human control
+Built a ChromaDB vector memory system that retrieves semantically similar past threads, approved drafts, and company knowledge to generate context-aware, personalized replies using cosine similarity search
+Implemented a LLM-powered safety review agent that scores each draft for hallucinations, incorrect promises, sensitive data leakage, and aggressive language before presenting it to the human reviewer
+Delivered a full-stack Streamlit approval dashboard with inline draft editing, one-click approve/reject, risk score display, and agent analytics (approval rate, category breakdown, avg processing time)
+Deployed with Docker Compose (multi-stage build, non-root user, health checks) with APScheduler background polling, SQLite persistence, structured logging, and a FastAPI REST layer with 80%+ test coverage
+
+
